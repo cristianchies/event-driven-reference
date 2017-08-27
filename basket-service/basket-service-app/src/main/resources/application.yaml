@@ -1,0 +1,69 @@
+logging:
+  level:
+    root: WARN
+    com.github.rodrigorfk: INFO
+
+server:
+  port: 8100
+
+management:
+  port: 4446
+  security:
+    enabled: false
+
+service:
+  store.url: http://localhost:8099
+  product.url: http://localhost:8101
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        store-preference-response-input:
+          destination: store-preference-response
+          content-type: application/json
+          consumer:
+            concurrency: 150
+        store-preference-request-output:
+          destination: store-preference-request
+          content-type: application/json
+        basket-addproduct-request-output:
+          destination: basket-addproduct-request
+          content-type: application/json
+        basket-addproduct-request-input:
+          destination: basket-addproduct-request
+          content-type: application/json
+          group: single
+          consumer:
+            concurrency: 150
+        basket-addproduct-response-output:
+          destination: basket-addproduct-response
+          content-type: application/json
+        basket-addproduct-response-input:
+          destination: basket-addproduct-response
+          content-type: application/json
+          consumer:
+            concurrency: 150
+        product-store-response-input:
+          destination: product-store-response
+          content-type: application/json
+          consumer:
+            concurrency: 150
+        product-store-request-output:
+          destination: product-store-request
+          content-type: application/json
+      rabbit:
+        bindings:
+          basket-addproduct-request-input:
+            consumer:
+                prefetch: 50
+          basket-addproduct-response-input:
+            consumer:
+                prefetch: 50
+  rabbitmq:
+    addresses: localhost:5672
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: basket

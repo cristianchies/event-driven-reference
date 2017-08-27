@@ -1,0 +1,16 @@
+logging:
+  level:
+    root: WARN
+    com.github.rodrigorfk: INFO
+
+server:
+  port: 8100
+
+management:
+  port: 4446
+  security:
+    enabled: false
+
+service:
+  store.url: http://localhost:8099
+  product.url: http://localhost:8101

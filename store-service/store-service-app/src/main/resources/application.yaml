@@ -1,0 +1,33 @@
+logging:
+  level:
+    root: WARN
+    com.github.rodrigorfk: INFO
+
+server:
+  port: 8099
+
+management:
+  port: 4445
+  security:
+    enabled: false
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        store-preference-response-output:
+          destination: store-preference-response
+          content-type: application/json
+        store-preference-request-input:
+          destination: store-preference-request
+          content-type: application/json
+          group: single
+          consumer:
+            concurrency: 150
+  rabbitmq:
+    addresses: localhost:5672
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: store

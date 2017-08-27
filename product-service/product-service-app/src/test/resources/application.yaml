@@ -1,0 +1,12 @@
+logging:
+  level:
+    root: WARN
+    com.github.rodrigorfk: INFO
+
+server:
+  port: 8101
+
+management:
+  port: 4447
+  security:
+    enabled: false
