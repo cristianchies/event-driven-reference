@@ -17,6 +17,9 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+  GithubToken:
+      Type: String
+      Description: Your private github token from https://github.com/settings/tokens
 
 
 Mappings:
@@ -167,47 +170,14 @@ Resources:
     Type: 'AWS::ECR::Repository'
     Properties:
       RepositoryName: product-service-app
-#      RepositoryPolicyText:
-#        Version: 2008-10-17
-#        Statement:
-#            - Sid: CodeBuildAccess
-#              Effect: Allow
-#              Principal:
-#                  Service: codebuild.amazonaws.com
-#              Action:
-#              - 'ecr:GetDownloadUrlForLayer'
-#              - 'ecr:BatchGetImage'
-#              - 'ecr:BatchCheckLayerAvailability'
   basketServiceApp:
       Type: 'AWS::ECR::Repository'
       Properties:
         RepositoryName: basket-service-app
-#        RepositoryPolicyText:
-#          Version: 2008-10-17
-#          Statement:
-#              - Sid: CodeBuildAccess
-#                Effect: Allow
-#                Principal:
-#                    Service: codebuild.amazonaws.com
-#                Action:
-#                - 'ecr:GetDownloadUrlForLayer'
-#                - 'ecr:BatchGetImage'
-#                - 'ecr:BatchCheckLayerAvailability'
   storeServiceApp:
         Type: 'AWS::ECR::Repository'
         Properties:
           RepositoryName: store-service-app
-#          RepositoryPolicyText:
-#            Version: 2008-10-17
-#            Statement:
-#                - Sid: CodeBuildAccess
-#                  Effect: Allow
-#                  Principal:
-#                      Service: codebuild.amazonaws.com
-#                  Action:
-#                  - 'ecr:GetDownloadUrlForLayer'
-#                  - 'ecr:BatchGetImage'
-#                  - 'ecr:BatchCheckLayerAvailability'
   codeBuildRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -240,6 +210,27 @@ Resources:
                   - ecr:UploadLayerPart
                 Resource:
                   - "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:DeleteObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:ListBucket"
+                  - "s3:PutObject"
+                  - "s3:GetBucketPolicy"
+                Resource:
+                  - Fn::Sub: ${codePipelineS3Bucket.Arn}
+                  - Fn::Sub: ${codePipelineS3Bucket.Arn}/*
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource:
+                  - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*
+
   codeDeployRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -255,6 +246,25 @@ Resources:
                 - "codedeploy.amazonaws.com"
             Action:
               - "sts:AssumeRole"
+      Path: /
+      Policies:
+         -
+            PolicyName: "CodePipelineNestedCFNAccessPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "s3:DeleteObject"
+                    - "s3:GetObject"
+                    - "s3:GetObjectVersion"
+                    - "s3:ListBucket"
+                    - "s3:PutObject"
+                    - "s3:GetBucketPolicy"
+                  Resource:
+                    - Fn::Sub: ${codePipelineS3Bucket.Arn}
+                    - Fn::Sub: ${codePipelineS3Bucket.Arn}/*
   codePipelineRole:
       Type: 'AWS::IAM::Role'
       Properties:
@@ -270,6 +280,33 @@ Resources:
                   - "codepipeline.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
+        Path: /
+        Policies:
+           -
+              PolicyName: "CodePipelineNestedCFNAccessPolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:DeleteObject"
+                      - "s3:GetObject"
+                      - "s3:GetObjectVersion"
+                      - "s3:ListBucket"
+                      - "s3:PutObject"
+                      - "s3:GetBucketPolicy"
+                    Resource:
+                      - Fn::Sub: ${codePipelineS3Bucket.Arn}
+                      - Fn::Sub: ${codePipelineS3Bucket.Arn}/*
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "codebuild:StartBuild"
+                      - "codebuild:BatchGetBuilds"
+                    Resource:
+                      - Fn::Sub: ${Project.Arn}
+                      - Fn::Sub: ${Project.Arn}:*
   microservicesRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -316,31 +353,92 @@ Resources:
               - 'ecr:CompleteLayerUpload'
               - 'ecr:PutImage'
             Resource:
-              - !Join
-                - ''
-                - - 'arn:aws:ecr:'
-                  - !Ref 'AWS::Region'
-                  - ':'
-                  - !Ref 'AWS::AccountId'
-                  - ':repository/'
-                  - !Ref productServiceApp
-              - !Join
-                - ''
-                - - 'arn:aws:ecr:'
-                  - !Ref 'AWS::Region'
-                  - ':'
-                  - !Ref 'AWS::AccountId'
-                  - ':repository/'
-                  - !Ref basketServiceApp
-              - !Join
-                - ''
-                - - 'arn:aws:ecr:'
-                  - !Ref 'AWS::Region'
-                  - ':'
-                  - !Ref 'AWS::AccountId'
-                  - ':repository/'
-                  - !Ref storeServiceApp
+              - Fn::Sub: arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${productServiceApp}
+              - Fn::Sub: arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${basketServiceApp}
+              - Fn::Sub: arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${storeServiceApp}
 
+  codePipelineS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+        BucketName:
+          Fn::Sub: codepipeline-${AWS::Region}-${AWS::StackName}
+
+  Project:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name:
+        Fn::Sub: project-${AWS::StackName}
+      Description: Build microservices demo
+      ServiceRole:
+         Fn::Sub: ${codeBuildRole.Arn}
+      Artifacts:
+        Type: CODEPIPELINE
+        Packaging: none
+        Name:
+          Fn::Sub: project-${AWS::StackName}
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+#        Image: rodrigorfk/aws-codebuild-java-docker
+        Image: aws/codebuild/docker:1.12.1
+        EnvironmentVariables:
+          - Name: DOCKER_REGISTRY
+            Value:
+              Fn::Sub: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com
+      Source:
+        Type: CODEPIPELINE
+      TimeoutInMinutes: 60
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name:
+        Fn::Sub: project-${AWS::StackName}
+      RoleArn:
+        Fn::Sub: ${codePipelineRole.Arn}
+      Stages:
+        -
+          Name: Source
+          Actions:
+            -
+              Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: MyApp
+              Configuration:
+                Owner: rodrigorfk
+                Repo: event-driven-reference
+                PollForSourceChanges: false
+                Branch: master
+                OAuthToken:
+                  Fn::Sub: ${GithubToken}
+              RunOrder: 1
+        -
+          Name: Build
+          Actions:
+            -
+              Name: CodeBuild
+              InputArtifacts:
+                - Name: MyApp
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: MyAppOutput
+              Configuration:
+                ProjectName:
+                  Fn::Sub: project-${AWS::StackName}
+              RunOrder: 1
+      ArtifactStore:
+        Type: S3
+        Location:
+          Ref: codePipelineS3Bucket
 
 
 Outputs:
