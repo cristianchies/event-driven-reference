@@ -53,7 +53,7 @@ public class ProductControllerTest {
         ProductEntity.ProductStoreEntity productStoreEntity = new ProductEntity.ProductStoreEntity();
         productStoreEntity.setPrice(10.0);
         productStoreEntity.setStock(8.0);
-        entity.getStores().put(1L, productStoreEntity);
+        entity.getStores().put("1", productStoreEntity);
         repository.save(entity);
 
         this.mockMvc.perform(get("/product/{id}/store/{storeId}", 4L, 1L).accept(MediaType.APPLICATION_JSON_UTF8))

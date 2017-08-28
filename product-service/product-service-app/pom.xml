@@ -11,6 +11,10 @@
 
     <artifactId>product-service-app</artifactId>
 
+    <properties>
+        <fabric8.maven.skip>false</fabric8.maven.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
