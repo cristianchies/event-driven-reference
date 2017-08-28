@@ -103,7 +103,7 @@ Resources:
         SecurityGroupIngress:
           - IpProtocol: tcp
             FromPort: 9000
-            ToPort: 9000
+            ToPort: 9003
             CidrIp: 0.0.0.0/0
           - IpProtocol: tcp
             FromPort: 22
@@ -382,7 +382,7 @@ Resources:
 #        Image: rodrigorfk/aws-codebuild-java-docker
         Image: aws/codebuild/docker:1.12.1
         EnvironmentVariables:
-          - Name: DOCKER_REGISTRY
+          - Name: DOCKER_REGISTRY_PARAM
             Value:
               Fn::Sub: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com
       Source:
