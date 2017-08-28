@@ -16,9 +16,9 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - ./mvnw install fabric8:build
+      - sh mvnw install fabric8:build
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - ./mvnw fabric8:push -Ddocker.registry=${DOCKER_REGISTRY}
+      - sh mvnw fabric8:push -Ddocker.registry=${DOCKER_REGISTRY}
