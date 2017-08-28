@@ -1,6 +1,9 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - pip install --upgrade awscli
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
