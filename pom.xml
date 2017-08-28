@@ -103,6 +103,13 @@
                 <version>3.5.25</version>
                 <configuration>
                     <skip>${fabric8.maven.skip}</skip>
+                    <generator>
+                        <config>
+                            <spring-boot>
+                                <name>%a:%l</name>
+                            </spring-boot>
+                        </config>
+                    </generator>
                 </configuration>
             </plugin>
         </plugins>
