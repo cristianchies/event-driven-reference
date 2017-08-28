@@ -8,7 +8,6 @@ phases:
       - add-apt-repository ppa:openjdk-r/ppa
       - apt-get update -y
       - apt-get install -y openjdk-8-jdk
-      - apt-get install -y maven
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -17,9 +16,9 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - mvn install fabric8:build
+      - ./mvnw install fabric8:build
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - mvn fabric8:push -Ddocker.registry=${DOCKER_REGISTRY}
+      - ./mvnw fabric8:push -Ddocker.registry=${DOCKER_REGISTRY}
