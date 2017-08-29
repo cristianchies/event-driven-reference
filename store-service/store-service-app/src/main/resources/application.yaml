@@ -24,6 +24,18 @@ spring:
           group: single
           consumer:
             concurrency: 150
+        customer-event-input:
+            destination: customer-event
+            content-type: application/json
+            group: single
+            consumer:
+              concurrency: 150
+              maxAttempts: 1
+      rabbit:
+        bindings:
+          customer-event-input:
+            consumer:
+                autoBindDlq: true
   rabbitmq:
     addresses: localhost:5672
   data:

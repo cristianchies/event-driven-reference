@@ -8,9 +8,12 @@ services:
       - backend
     ports:
       - 9003:15672
+      - 5672:5672
   mongodb:
     image: mongo:3.4.7
     restart: always
+    ports:
+      - 27017:27017
     networks:
       - backend
 

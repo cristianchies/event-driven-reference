@@ -1,0 +1,33 @@
+logging:
+  level:
+    root: WARN
+    org.github.rodrigorfk: INFO
+
+server:
+  port: 9005
+
+management:
+  port: 4448
+  security:
+    enabled: false
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        customer-event-output:
+          destination: customer-event
+          content-type: application/json
+#        store-preference-request-input:
+#          destination: store-preference-request
+#          content-type: application/json
+#          group: single
+#          consumer:
+#            concurrency: 150
+  rabbitmq:
+    addresses: localhost:5672
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: customer
