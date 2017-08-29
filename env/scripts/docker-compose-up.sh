@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose up -d -f /opt/webapps/docker-compose.yaml
+docker-compose -f /opt/webapps/docker-compose.yaml -p app up -d

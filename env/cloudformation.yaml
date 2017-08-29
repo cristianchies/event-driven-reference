@@ -324,6 +324,15 @@ Resources:
                     Resource:
                       - Fn::Sub: ${Project.Arn}
                       - Fn::Sub: ${Project.Arn}:*
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "codedeploy:Batch*"
+                      - "codedeploy:CreateDeployment"
+                      - "codedeploy:Get*"
+                      - "codedeploy:List*"
+                      - "codedeploy:RegisterApplicationRevision"
+                    Resource: "*"
   microservicesRole:
     Type: 'AWS::IAM::Role'
     Properties:

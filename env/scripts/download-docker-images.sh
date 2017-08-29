@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose pull -f /opt/webapps/docker-compose.yaml
+docker-compose -f /opt/webapps/docker-compose.yaml pull
