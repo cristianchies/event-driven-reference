@@ -26,3 +26,6 @@ artifacts:
   discard-paths: yes
   files:
     - env/docker-compose.yaml
+    - env/appspec.yml
+    - env/scripts/docker-compose-up.sh
+    - env/scripts/download-docker-images.sh

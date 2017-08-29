@@ -176,6 +176,8 @@ Resources:
           systemctl enable codedeploy-agent
           systemctl start codedeploy-agent
 
+          echo "export DOCKER_REGISTRY_PARAM=${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/" >> /etc/profile
+
   productServiceApp:
     Type: 'AWS::ECR::Repository'
     Properties:
@@ -275,6 +277,11 @@ Resources:
                   Resource:
                     - Fn::Sub: ${codePipelineS3Bucket.Arn}
                     - Fn::Sub: ${codePipelineS3Bucket.Arn}/*
+                -
+                  Effect: "Allow"
+                  Action:
+                    - ec2:Describe*
+                  Resource: '*'
   codePipelineRole:
       Type: 'AWS::IAM::Role'
       Properties:
@@ -413,6 +420,27 @@ Resources:
         Type: CODEPIPELINE
       TimeoutInMinutes: 60
 
+  Deploy:
+    Type: "AWS::CodeDeploy::Application"
+    Properties:
+      ApplicationName:
+        Fn::Sub: project-${AWS::StackName}
+  DeploymentGroup:
+    Type: "AWS::CodeDeploy::DeploymentGroup"
+    Properties:
+      DeploymentGroupName:
+        Fn::Sub: project-${AWS::StackName}-grp
+      ApplicationName:
+        Fn::Sub: project-${AWS::StackName}
+      Ec2TagFilters:
+        - Type: KEY_AND_VALUE
+          Value: DEMO-MICROSERVICES-WEB-SERVER
+          Key: Name
+      DeploymentStyle:
+        DeploymentOption: WITHOUT_TRAFFIC_CONTROL
+      ServiceRoleArn:
+        Fn::Sub: ${codeDeployRole.Arn}
+
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -459,6 +487,23 @@ Resources:
                 ProjectName:
                   Fn::Sub: project-${AWS::StackName}
               RunOrder: 1
+        -
+          Name: Deploy
+          Actions:
+            -
+              Name: CodeDeploy
+              InputArtifacts:
+                - Name: MyAppOutput
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CodeDeploy
+              Configuration:
+                ApplicationName:
+                  Fn::Sub: project-${AWS::StackName}
+                DeploymentGroupName:
+                  Fn::Sub: project-${AWS::StackName}-grp
       ArtifactStore:
         Type: S3
         Location:

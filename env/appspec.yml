@@ -1,0 +1,12 @@
+version: 0.0
+os: linux
+files:
+  - source: docker-compose.yaml
+    destination: /opt/webapps
+hooks:
+  AfterInstall:
+    - location: download-docker-images.sh
+      timeout: 180
+  ApplicationStart:
+    - location: docker-compose-up.sh
+      timeout: 180
