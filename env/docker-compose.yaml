@@ -1,0 +1,70 @@
+version: '2'
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    networks:
+      - backend
+    ports:
+      - 9003:15672
+  mongodb:
+    image: mongo:3.4.7
+    restart: always
+    networks:
+      - backend
+
+  store-app:
+    image: ${DOCKER_REGISTRY_PARAM}store-service-app
+    networks:
+      - backend
+    ports:
+        - 9002:8099
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      - TZ=America/Sao_Paulo
+    entrypoint:
+      - /deployments/run-java.sh
+    command: ["--spring.rabbitmq.addresses=rabbitmq:5672", "--spring.data.mongodb.host=mongodb","--spring.cloud.stream.bindings.store-preference-request-input.consumer.concurrency=500"]
+    mem_limit: 2G
+  product-app:
+    image: ${DOCKER_REGISTRY_PARAM}product-service-app
+    networks:
+      - backend
+    ports:
+      - 9001:8101
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      - TZ=America/Sao_Paulo
+    entrypoint:
+      - /deployments/run-java.sh
+    command: ["--spring.rabbitmq.addresses=rabbitmq:5672", "--spring.data.mongodb.host=mongodb","--spring.cloud.stream.bindings.product-store-request-input.consumer.concurrency=500"]
+    mem_limit: 2G
+  basket-app:
+      image: ${DOCKER_REGISTRY_PARAM}basket-service-app
+      networks:
+        - backend
+      depends_on:
+        - mongodb
+        - rabbitmq
+      ports:
+        - 9000:8100
+      environment:
+        - TZ=America/Sao_Paulo
+      entrypoint:
+        - /deployments/run-java.sh
+      command:
+        - --spring.rabbitmq.addresses=rabbitmq:5672
+        - --spring.data.mongodb.host=mongodb
+        - --service.store.url=http://store-app:8099
+        - --service.product.url=http://product-app:8101
+      mem_limit: 3G
+
+
+networks:
+  backend:
+    driver: bridge

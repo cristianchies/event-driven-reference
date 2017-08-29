@@ -22,3 +22,7 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - sh mvnw fabric8:push -Ddocker.registry=${DOCKER_REGISTRY_PARAM}
+artifacts:
+  discard-paths: yes
+  files:
+    - env/docker-compose.yaml

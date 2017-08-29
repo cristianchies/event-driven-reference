@@ -166,6 +166,16 @@ Resources:
           systemctl start docker
           usermod -aG docker centos
 
+          # Install docker-compose
+          pip install docker-compose
+
+          # install codedeploy agent
+          yum install -y ruby wget
+          REGION=$(curl 169.254.169.254/latest/meta-data/placement/availability-zone/ | sed 's/[a-z]$//')
+          chmod +x ./install
+          systemctl enable codedeploy-agent
+          systemctl start codedeploy-agent
+
   productServiceApp:
     Type: 'AWS::ECR::Repository'
     Properties:
@@ -321,6 +331,20 @@ Resources:
                 - "ec2.amazonaws.com"
             Action:
               - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "CodePipelineNestedCFNAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:Get*"
+                  - "s3:List*"
+                Resource:
+                  - Fn::Sub: ${codePipelineS3Bucket.Arn}
+                  - Fn::Sub: ${codePipelineS3Bucket.Arn}/*
   microservicesIntanceProfile:
       Type: 'AWS::IAM::InstanceProfile'
       Properties:
