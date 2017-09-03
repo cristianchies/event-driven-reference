@@ -2,13 +2,18 @@ version: '2'
 services:
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management-mqtt
+    build:
+      context: docker
+      dockerfile: dockerfile-rabbitmq-mqtt
     restart: always
     networks:
       - backend
     ports:
       - 9003:15672
       - 5672:5672
+      - 1883:1883
+      - 15675:15675
   mongodb:
     image: mongo:3.4.7
     restart: always
