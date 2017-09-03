@@ -1,0 +1,22 @@
+{
+  "name": "mqtt-frontend",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Rodrigo Fior Kuntzer <rodrigo.kuntzer@cwi.com.br>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/rodrigorfk/event-driven-reference",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "web-mqtt-client": "^1.3.1",
+    "mqttws": "^1.0.0"
+  }
+}
