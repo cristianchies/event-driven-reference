@@ -17,7 +17,7 @@
         <module>store-service</module>
         <module>basket-service</module>
         <module>product-service</module>
-        <module>custome-rservice</module>
+        <module>customer-service</module>
     </modules>
     <packaging>pom</packaging>
 
